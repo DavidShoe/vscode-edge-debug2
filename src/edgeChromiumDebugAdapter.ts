@@ -22,7 +22,11 @@ import { Url } from 'url';
 
 export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
     private _isDebuggerUsingWebView: boolean;
-    private _webviewPipeServer: net.Server;
+
+
+    private _webviewPipeServerList: Array<net.Server> = [];
+
+    //private _webviewPipeServer: net.Server;
 
     private _targetUrl: string;
 
@@ -95,10 +99,19 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
     public shutdown() {
         super.shutdown();
 
-        // Clean up the pipe server
-        if (this._webviewPipeServer) {
-            this._webviewPipeServer.close();
+        for (var key in this._webviewPipeServerList)
+        {
+            if (this._webviewPipeServerList[key] != null)
+            {
+                this._webviewPipeServerList[key].close();
+            }
         }
+
+
+        // // Clean up the pipe server
+        // if (this._webviewPipeServer) {
+        //     this._webviewPipeServer.close();
+        // }
     }
 
     protected async doAttach(port: number, targetUrl?: string, address?: string, timeout?: number, websocketUrl?: string, extraCRDPChannelPort?: number) {
@@ -161,6 +174,7 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
         return (targets && targets.length > 0);
     }
 
+    // Watches for new webviews and gets a notification pipe to each so that it can later
     private async createWebViewServer(args: ILaunchRequestArgs, webViewCreatedCallback: (port: number) => void) {
         // Create the named pipe used to subscribe to new webview creation events
         const exeName = args.runtimeExecutable.split(/\\|\//).pop();
@@ -170,52 +184,49 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
         this._targetUrl = targetUrl;
         let isAttached = false;
 
-        // Clean up any previous pipe
-        await new Promise((resolve) => {
-            if (this._webviewPipeServer) {
-                this._webviewPipeServer.close(() => {
-                    resolve();
-                });
-            } else {
-                resolve();
-            }
-        });
+        // // Clean up any previous parent pipe
+        // await new Promise((resolve) => {
+        //     if (this._webviewPipeServer) {
+        //         this._webviewPipeServer.close(() => {
+        //             resolve();
+        //         });
+        //     } else {
+        //         resolve();
+        //     }
+        // });
 
-        this._webviewPipeServer = net.createServer((stream) => {
+        //this._webviewPipeServer = net.createServer((stream) => {
+        this._webviewPipeServerList.push(net.createServer((stream) => {
             stream.on('data', async (data) => {
                 const connectionInfo: IWebViewConnectionInfo = JSON.parse(data.toString());
                 const port = this.getWebViewPort(args, connectionInfo);
 
                 const url = connectionInfo.url;
 
-                // if (!isAttached && this.isMatchingWebViewTarget(connectionInfo, targetUrl)) {
-                //     webViewCreatedCallback(port);
-                //     isAttached = true;
-                // } else {
-                    webViewCreatedCallback(port);
+                webViewCreatedCallback(port);
 
-                    const address = args.address || '127.0.0.1';
-                    const webSocketUrl = `ws://${address}:${port}/devtools/${connectionInfo.type}/${connectionInfo.id}`
+                const address = args.address || '127.0.0.1';
+                const webSocketUrl = `ws://${address}:${port}/devtools/${connectionInfo.type}/${connectionInfo.id}`
 
-                    const webViewConnection = new chromeConnection.ChromeConnection();
-                    await webViewConnection.attachToWebsocketUrl(webSocketUrl);
+                const webViewConnection = new chromeConnection.ChromeConnection();
+                await webViewConnection.attachToWebsocketUrl(webSocketUrl);
 
-                    webViewConnection.api.Page.on('frameNavigated', event => this._onFrameNavigated(event));
-                    webViewConnection.api.Page.enable(); // if you don't enable you won't get the frameNavigated events
+                webViewConnection.api.Page.on('frameNavigated', event => this._onFrameNavigated(event));
+                webViewConnection.api.Page.enable(); // if you don't enable you won't get the frameNavigated events
 
-                    await webViewConnection.api.Runtime.runIfWaitingForDebugger();
-                    //webViewConnection.close();
-                // }
+                await webViewConnection.api.Runtime.runIfWaitingForDebugger();
             });
-        });
+        }));
 
-        this._webviewPipeServer.on('close', () => {
-            this._webviewPipeServer = undefined;
-            webViewCreatedCallback(0);
-            isAttached = true;
-        });
+        //this._webviewPipeServer.on('close', () => {
+        // this._webviewPipeServerList[this._webviewPipeServerList.length].on('close', () => {
+        //     //this._webviewPipeServer = undefined;
+        //     webViewCreatedCallback(0);
+        //     isAttached = true;
+        // });
 
-        this._webviewPipeServer.listen(serverName);
+        //this._webviewPipeServer.listen(serverName);
+        this._webviewPipeServerList[this._webviewPipeServerList.length].listen(serverName);
 
         return pipeName;
     }
