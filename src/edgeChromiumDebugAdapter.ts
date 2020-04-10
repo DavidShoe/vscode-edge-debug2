@@ -33,10 +33,10 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
 
     public async launch(args: ILaunchRequestArgs, telemetryPropertyCollector: ITelemetryPropertyCollector, seq?: number) {
         let attachToWebView = false;
-        let webViewCreatedCallback: (port: number) => void;
-        const webViewReadyToAttach = new Promise<number>((resolve, reject) => {
-            webViewCreatedCallback = resolve;
-        });
+         let webViewCreatedCallback: (port: number) => void;
+         const webViewReadyToAttach = new Promise<number>((resolve, reject) => {
+             webViewCreatedCallback = resolve;
+         });
 
         if (args.useWebView) {
             if (!args.runtimeExecutable) {
@@ -219,14 +219,14 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
         }));
 
         //this._webviewPipeServer.on('close', () => {
-        // this._webviewPipeServerList[this._webviewPipeServerList.length].on('close', () => {
+        // this._webviewPipeServerList[this._webviewPipeServerList.length-1].on('close', () => {
         //     //this._webviewPipeServer = undefined;
         //     webViewCreatedCallback(0);
         //     isAttached = true;
         // });
 
         //this._webviewPipeServer.listen(serverName);
-        this._webviewPipeServerList[this._webviewPipeServerList.length].listen(serverName);
+        this._webviewPipeServerList[this._webviewPipeServerList.length-1].listen(serverName);
 
         return pipeName;
     }
@@ -234,6 +234,7 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
 
     private async _onFrameNavigated(framePayload) {
         console.debug('_onFrameNavigated');
+
         var x = framePayload;
 
         const frame = framePayload.frame;
@@ -253,6 +254,7 @@ export class EdgeChromiumDebugAdapter extends ChromeDebugAdapter {
                 console.debug("found web target matching filter");
 
                 // How do we finish the connection?
+
             }
             else
             {
