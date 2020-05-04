@@ -290,6 +290,19 @@
                 "description": "%edge.urlFilter.description%",
                 "default": ""
               },
+              "useWebView": {
+                "type": [
+                  "boolean",
+                  "string"
+                ],
+                "enum": [
+                  "advanced",
+                  true,
+                  false
+                ],
+                "description": "%edge.useWebView.description%",
+                "default": false
+              },
               "showAsyncStacks": {
                 "type": "boolean",
                 "description": "%edge.showAsyncStacks.description%",
@@ -329,19 +342,6 @@
                 "default": [
                   "page"
                 ]
-              },
-              "useWebView": {
-                "type": [
-                  "boolean",
-                  "string"
-                ],
-                "enum": [
-                  "advanced",
-                  true,
-                  false
-                ],
-                "description": "%edge.useWebView.description%",
-                "default": false
               }
             }
           },
@@ -434,6 +434,19 @@
                 "description": "%edge.urlFilter.description%",
                 "default": ""
               },
+              "useWebView": {
+                "type": [
+                  "boolean",
+                  "string"
+                ],
+                "enum": [
+                  "advanced",
+                  true,
+                  false
+                ],
+                "description": "%edge.useWebView.description%",
+                "default": false
+              },
               "targetTypes": {
                 "type": [
                   "array",
@@ -453,19 +466,6 @@
                 "type": "boolean",
                 "description": "%edge.logTimestamps.description%",
                 "default": true
-              },
-              "useWebView": {
-                "type": [
-                  "boolean",
-                  "string"
-                ],
-                "enum": [
-                  "advanced",
-                  true,
-                  false
-                ],
-                "description": "%edge.useWebView.description%",
-                "default": false
               }
             }
           }
@@ -632,6 +632,19 @@
                 "type": "string",
                 "description": "%edge.urlFilter.description%",
                 "default": ""
+              },
+              "useWebView": {
+                "type": [
+                  "boolean",
+                  "string"
+                ],
+                "enum": [
+                  "advanced",
+                  true,
+                  false
+                ],
+                "description": "%edge.useWebView.description%",
+                "default": false
               },
               "showAsyncStacks": {
                 "type": "boolean",
@@ -802,6 +815,19 @@
                 "type": "string",
                 "description": "%edge.urlFilter.description%",
                 "default": ""
+              },
+              "useWebView": {
+                "type": [
+                  "boolean",
+                  "string"
+                ],
+                "enum": [
+                  "advanced",
+                  true,
+                  false
+                ],
+                "description": "%edge.useWebView.description%",
+                "default": false
               },
               "showAsyncStacks": {
                 "type": "boolean",
